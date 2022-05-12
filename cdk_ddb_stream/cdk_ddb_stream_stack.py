@@ -33,16 +33,29 @@ class CdkDdbStreamStack(Stack):
         ))
 
         get_lambda = _lambda.Function(
-            self, 'Handler',
+            self, 'get_handler',
             runtime=_lambda.Runtime.PYTHON_3_7,
             code=_lambda.Code.from_asset('lambda'),
             handler='handler.handler',
             role=ddb_role
         )
 
-        handler_api = _apigw.LambdaRestApi(
+        get_handler_api = _apigw.LambdaRestApi(
             self, "handler-endpoint",
             handler=get_lambda
         )
+
+        put_lambda = _lambda.Function(
+            self, 'put_handler',
+            runtime=_lambda.Runtime.PYTHON_3_7,
+            code=_lambda.Code.from_asset('lambda'),
+            handler='put_handler.handler',
+        )
+
+        put_handler_api = _apigw.LambdaRestApi(
+            self, "put-handler-endpoint",
+            handler=put_lambda
+        )
+
 
 

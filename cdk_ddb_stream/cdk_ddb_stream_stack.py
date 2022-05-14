@@ -20,16 +20,28 @@ class CdkDdbStreamStack(Stack):
             "arn:aws:dynamodb:us-east-1:170976071768:table/rsp-demo-table-dev"
         )
 
-        ddb_role = _iam.Role(
+        ddb_read_role = _iam.Role(
             self,
-            "ddb_lambda_role",
+            "ddb_read_lambda_role",
             assumed_by=_iam.ServicePrincipal("lambda.amazonaws.com")
         )
 
-        ddb_role.add_to_policy(_iam.PolicyStatement(
+        ddb_read_role.add_to_policy(_iam.PolicyStatement(
             effect=_iam.Effect.ALLOW,
             resources=["arn:aws:dynamodb:us-east-1:170976071768:table/rsp-demo-table-dev"],
             actions=["dynamodb:GetItem"]
+        ))
+
+        ddb_write_role = _iam.Role(
+            self,
+            "ddb_write_lambda_role",
+            assumed_by=_iam.ServicePrincipal("lambda.amazonaws.com")
+        )
+
+        ddb_write_role.add_to_policy(_iam.PolicyStatement(
+            effect=_iam.Effect.ALLOW,
+            resources=["arn:aws:dynamodb:us-east-1:170976071768:table/rsp-demo-table-dev"],
+            actions=["dynamodb:PutItem"]
         ))
 
         get_lambda = _lambda.Function(
@@ -37,7 +49,7 @@ class CdkDdbStreamStack(Stack):
             runtime=_lambda.Runtime.PYTHON_3_7,
             code=_lambda.Code.from_asset('lambda'),
             handler='handler.handler',
-            role=ddb_role
+            role=ddb_read_role
         )
 
         get_handler_api = _apigw.LambdaRestApi(
@@ -50,6 +62,7 @@ class CdkDdbStreamStack(Stack):
             runtime=_lambda.Runtime.PYTHON_3_7,
             code=_lambda.Code.from_asset('lambda'),
             handler='put_handler.handler',
+            role=ddb_write_role
         )
 
         put_handler_api = _apigw.LambdaRestApi(

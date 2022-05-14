@@ -6,12 +6,21 @@ import boto3
 def handler(event, context):
     ddb = boto3.client('dynamodb')
 
-    print(event)
+    item_key = event["queryStringParameters"]["itemKey"]
+    item_name = event["queryStringParameters"]["name"]
+
+    response = ddb.put_item(
+        TableName="rsp-demo-table-dev",
+        Item={
+            'itemKey': {'S': item_key},
+            'name': {'S': item_name}
+        }
+    )
 
     return {
         "statusCode": 200,
         "headers": {
             "Content-Type": "application/json"
         },
-        "body": json.dumps(event)
+        "body": json.dumps(response)
     }

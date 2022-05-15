@@ -7,9 +7,10 @@ def handler(event, context):
     ddb = boto3.client('dynamodb')
 
     target_name = event["queryStringParameters"]["itemKey"]
+    table_name = os.environ["TABLE"]
 
     response = ddb.get_item(
-        TableName="rsp-demo-table-dev",
+        TableName=table_name,
         Key={
             'itemKey': {
                 'S': target_name

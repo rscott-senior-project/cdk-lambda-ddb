@@ -8,9 +8,10 @@ def handler(event, context):
 
     item_key = event["queryStringParameters"]["itemKey"]
     item_name = event["queryStringParameters"]["name"]
+    table_name = os.environ["TABLE"]
 
     response = ddb.put_item(
-        TableName="rsp-demo-table-dev",
+        TableName=table_name,
         Item={
             'itemKey': {'S': item_key},
             'name': {'S': item_name}

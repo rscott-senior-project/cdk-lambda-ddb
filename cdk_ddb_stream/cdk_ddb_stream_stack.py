@@ -21,18 +21,6 @@ class CdkDdbStreamStack(Stack):
             kinesis_stream=_kns.Stream(self, "demo-stream")
         )
 
-        ddb_read_role = _iam.Role(
-            self,
-            "ddb_read_lambda_role",
-            assumed_by=_iam.ServicePrincipal("lambda.amazonaws.com")
-        )
-
-        ddb_read_role.add_to_policy(_iam.PolicyStatement(
-            effect=_iam.Effect.ALLOW,
-            resources=[table.table_arn],
-            actions=["dynamodb:GetItem"]
-        ))
-
         ddb_write_role = _iam.Role(
             self,
             "ddb_write_lambda_role",
@@ -44,33 +32,6 @@ class CdkDdbStreamStack(Stack):
             resources=[table.table_arn],
             actions=["dynamodb:PutItem", "dynamodb:UpdateItem"]
         ))
-
-        ddb_admin_role = _iam.Role(
-            self,
-            "ddb_admin_lambda_role",
-            assumed_by=_iam.ServicePrincipal("lambda.amazonaws.com")
-        )
-
-        ddb_write_role.add_to_policy(_iam.PolicyStatement(
-            effect=_iam.Effect.ALLOW,
-            resources=[table.table_arn],
-            actions=["dynamodb:*"]
-        ))
-
-        get_lambda = _lambda.Function(
-            self, 'get_handler',
-            runtime=_lambda.Runtime.PYTHON_3_7,
-            code=_lambda.Code.from_asset('lambda'),
-            handler='handler.handler',
-            role=ddb_read_role
-        )
-
-        get_lambda.add_environment("TABLE", table.table_name)
-
-        get_handler_api = _apigw.LambdaRestApi(
-            self, "handler-endpoint",
-            handler=get_lambda
-        )
 
         put_lambda = _lambda.Function(
             self, 'put_handler',
